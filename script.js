@@ -28,13 +28,23 @@ function initGlobalObject() {
     //Datastruktur för vilka platser som är lediga respektive har brickor
     //Genom at fylla i här med antingen X eler O kan ni testa era rättningsfunktioner
     oGameData.gameField = ["", "", "", "", "", "", "", "", ""];
-
     /* Testdata för att testa rättningslösning */
     //oGameData.gameField = ['X', 'X', 'X', '', '', '', '', '', ''];
     //oGameData.gameField = ['X', '', '', 'X', '', '', 'X', '', ''];
     //oGameData.gameField = ['X', '', '', '', 'X', '', '', '', 'X'];
     //oGameData.gameField = ['', '', 'X', '', 'X', '', 'X', '', ''];
-    //oGameData.gameField = ['X', 'O', 'X', '0', 'X', 'O', 'O', 'X', 'O'];
+
+    // ["X", "X", "X",] - Array 1
+    // ["X", "O", "X",] - Array 2
+    // ["X", "O", "O",] - Array 3
+
+    //SPLIT oGameData.gameField i 3st Array för varje rad: ['0','1','2']
+
+    //OM alla tecken är lika i Array => VINST
+    //OM alla tecken är lika på samma index => VINST
+    //OM index 0,1,2  har samma tecken i alla t
+
+    oGameData.gameField = ["X", "O", "X", "O", "X", "O", "O", "X", "O"];
 
     //Indikerar tecknet som skall användas för spelare ett.
     oGameData.playerOne = "X";
@@ -78,14 +88,40 @@ function initGlobalObject() {
  * returnerar 3 om det är oavgjort.
  * Funktionen tar inte emot några värden.
  */
-function checkForGameOver() {}
+
+function checkForGameOver() {
+    checkForDraw();
+    let playerIn = "O";
+    checkWinner(playerIn);
+}
 
 // Säg till om ni vill få pseudokod för denna funktion
 // Viktigt att funktionen returnerar true eller false baserat på om den inskickade spelaren är winner eller ej
-function checkWinner(playerIn) {}
+function checkWinner(playerIn) {
+    let winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+
+    for (let i = 0; i < winningCombinations.length; i++) {
+        let arrray = winningCombinations[i];
+    }
+}
 
 //Kontrollera om alla platser i oGameData.GameField är fyllda. Om sant returnera true, annars false.
-function checkForDraw() {}
+function checkForDraw() {
+    let allCellsFilled = oGameData.gameField.every(
+        (cell) => cell === "X" || cell === "O"
+    );
+    console.log(allCellsFilled);
+    return allCellsFilled;
+}
 
 // Nedanstående funktioner väntar vi med!
 
