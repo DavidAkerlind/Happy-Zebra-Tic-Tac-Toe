@@ -9,9 +9,9 @@ let oGameData = {};
 window.addEventListener("load", () => {
     initGlobalObject();
     if (checkForGameOver() === 1) {
-        console.log("Spelare 1 vann");
+        console.log("Spelare 1 vann dvs X");
     } else if (checkForGameOver() === 2) {
-        console.log("Spelare 2 vann");
+        console.log("Spelare 2 vann dvs O");
     } else if (checkForGameOver() === 3) {
         console.log("Oavgjort");
     } else {
@@ -29,22 +29,20 @@ function initGlobalObject() {
     //Genom at fylla i här med antingen X eler O kan ni testa era rättningsfunktioner
     oGameData.gameField = ["", "", "", "", "", "", "", "", ""];
     /* Testdata för att testa rättningslösning */
-    //oGameData.gameField = ['X', 'X', 'X', '', '', '', '', '', ''];
-    //oGameData.gameField = ['X', '', '', 'X', '', '', 'X', '', ''];
-    //oGameData.gameField = ['X', '', '', '', 'X', '', '', '', 'X'];
-    //oGameData.gameField = ['', '', 'X', '', 'X', '', 'X', '', ''];
+    //oGameData.gameField = ["O", "O", "O", "", "", "", "", "", ""];
+    // oGameData.gameField = ["X", "", "X", "X", "", "", "O", "", ""];
+    //oGameData.gameField = ["X", "", "", "", "X", "", "", "", "X"];
+    //oGameData.gameField = ["O", "", "", "", "O", "", "", "", "O"];
+    // oGameData.gameField = ["", "", "X", "", "X", "", "X", "", ""];
+    //oGameData.gameField = ["O", "O", "O", "O", "X", "X", "X", "X", "X"];
+    //oGameData.gameField = ["X", "O", "X", "X", "X", "O", "O", "X", "O"];
 
-    // ["X", "X", "X",] - Array 1
-    // ["X", "O", "X",] - Array 2
-    // ["X", "O", "O",] - Array 3
-
-    //SPLIT oGameData.gameField i 3st Array för varje rad: ['0','1','2']
-
-    //OM alla tecken är lika i Array => VINST
-    //OM alla tecken är lika på samma index => VINST
-    //OM index 0,1,2  har samma tecken i alla t
-
-    oGameData.gameField = ["X", "O", "X", "O", "X", "O", "O", "X", "O"];
+    //-------------------------------------------------------------------
+    // Här omvandlar vi alla LowerCase i gameField till UpperCase
+    oGameData.gameField = oGameData.gameField.map(
+        (cell) => (cell = cell.toUpperCase())
+    );
+    //-------------------------------------------------------------------
 
     //Indikerar tecknet som skall användas för spelare ett.
     oGameData.playerOne = "X";
@@ -90,15 +88,21 @@ function initGlobalObject() {
  */
 
 function checkForGameOver() {
-    checkForDraw();
-    let playerIn = "O";
-    checkWinner(playerIn);
+    if (checkWinner(oGameData.playerOne)) {
+        return 1;
+    } else if (checkWinner(oGameData.playerTwo)) {
+        return 2;
+    } else if (checkForDraw()) {
+        return 3;
+    }
+    return 0;
 }
 
 // Säg till om ni vill få pseudokod för denna funktion
 // Viktigt att funktionen returnerar true eller false baserat på om den inskickade spelaren är winner eller ej
 function checkWinner(playerIn) {
-    let winningCombinations = [
+    playerIn = playerIn.toUpperCase();
+    const winningCombinations = [
         [0, 1, 2],
         [3, 4, 5],
         [6, 7, 8],
@@ -111,16 +115,45 @@ function checkWinner(playerIn) {
 
     for (let i = 0; i < winningCombinations.length; i++) {
         let arrray = winningCombinations[i];
+        if (
+            oGameData.gameField[arrray[0]] === playerIn &&
+            oGameData.gameField[arrray[1]] === playerIn &&
+            oGameData.gameField[arrray[2]] === playerIn
+        ) {
+            return true;
+        }
     }
+    return false;
 }
+// Alternativ 2 (chatGPT):
+// return winningCombinations.some((combination) =>
+//     combination.every((index) => oGameData.gameField[index] === playerIn)
+// );
+
+// Alternativ 3:
+//     for (let winningTarget of winningCombinations) {
+//         const [set_A, set_B, set_C] = winningTarget;
+//         if (
+//             oGameData.gameField[set_A] === playerIn &&
+//             oGameData.gameField[set_B] === playerIn &&
+//             oGameData.gameField[set_C] === playerIn
+//         ) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 
 //Kontrollera om alla platser i oGameData.GameField är fyllda. Om sant returnera true, annars false.
 function checkForDraw() {
-    let allCellsFilled = oGameData.gameField.every(
-        (cell) => cell === "X" || cell === "O"
-    );
-    console.log(allCellsFilled);
-    return allCellsFilled;
+    return oGameData.gameField.every((cell) => cell !== "");
+
+    // Alternativ 2 - ursprungsversion
+    //  let allCellsFilled = oGameData.gameField.every(
+    //      (cell) => cell === "X" || cell === "O"
+    //  );
+    //  console.log(allCellsFilled);
+    //  return allCellsFilled;
 }
 
 // Nedanstående funktioner väntar vi med!
