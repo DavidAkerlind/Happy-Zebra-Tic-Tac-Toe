@@ -173,8 +173,7 @@ function initiateGame() {
     console.log("initiateGame()");
 
     // Gömmer input-formulär.
-    let formRef = document.querySelector("#theForm");
-    formRef.classList.add("d-none");
+    document.querySelector("#theForm").classList.add("d-none");
 
     // Visar spelplanen.
     document.querySelector("#gameArea").classList.remove("d-none");
@@ -200,7 +199,7 @@ function initiateGame() {
 
     //Hämtar alla td-element som är spelrutor. 
     let gameTdRefs = document.querySelectorAll(".ml-auto tr td")
-    console.log(gameTdRefs)
+    
     
     //Rensar spelplanen.
     gameTdRefs.forEach(field => {
@@ -213,8 +212,7 @@ function initiateGame() {
     let playerName;
 
     let randomNumber = Math.random()
-    console.log(randomNumber)
-
+    
     if (randomNumber < 0.5) {
         playerChar = oGameData.playerOne;
         playerName = oGameData.nickNamePlayerOne;
@@ -238,7 +236,7 @@ function executeMove(event) {
     if (event.target.textContent === "") {
        oGameData.gameField[event.target.getAttribute("data-id")] = oGameData.currentPlayer
 
-    //Lorem ipsum
+    // Kollar vem som är aktuell spelare och lägger in den färg och tecken på den ruta som klickades
         if (oGameData.currentPlayer === oGameData.playerOne) {
             event.target.style.backgroundColor = oGameData.colorPlayerOne;
             event.target.textContent = oGameData.playerOne;
@@ -251,14 +249,21 @@ function executeMove(event) {
             document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ` + oGameData.nickNamePlayerOne;
         }
 
-        if (checkForGameOver() === 1) {
-            gameOver(1)
-        } else if (checkForGameOver() === 2){
-            gameOver(2)
-        } else if (checkForGameOver() === 3){
-            gameOver(3)
+// Om checkForGameOver inte är 0 så är spelet över och vi kör gameOver()
+        if (checkForGameOver() !== 0) {
+            gameOver(checkForGameOver())
         }
-    console.log(oGameData.currentPlayer)
+
+
+        // Alternativ 2 
+        // if (checkForGameOver() === 1) {
+        //     gameOver(1)
+        // } else if (checkForGameOver() === 2){
+        //     gameOver(2)
+        // } else if (checkForGameOver() === 3){
+        //     gameOver(3)
+        // }
+    
     }
 }
 function changePlayer() {}
@@ -266,11 +271,24 @@ function changePlayer() {}
 function timer() {}
 
 function gameOver(result) {
+// Tar bort addEventListener på rutbrädet
+document.querySelector('#gameArea table').removeEventListener('click', (executeMove))
+
+// Tar fram formuläret för att välja namn och färg samt starta spelet
+document.querySelector("#theForm").classList.remove("d-none");
+
+// Gömmer Spelplanen
+document.querySelector("#gameArea").classList.add("d-none");
+
+// Visar vem som vann spelet i jumbotronen
      if (result === 1) {
-            console.log("spelare 1 vinner")
+            document.querySelector('.jumbotron h1').textContent = `${oGameData.nickNamePlayerOne} vinner! Spela igen?`;
         } else if (result === 2){
-            console.log("spelare 2 vinner")
+            document.querySelector('.jumbotron h1').textContent = `${oGameData.nickNamePlayerTwo} vinner! Spela igen?`;
         } else if (result === 3){
-            console.log("oavgjort")
+            document.querySelector('.jumbotron h1').textContent = `Oavgjort!`;
         }
+
+// Återställer vårat globala objekt för att köra ett nytt spel
+    initGlobalObject();
 }
