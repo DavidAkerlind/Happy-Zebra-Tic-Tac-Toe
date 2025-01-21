@@ -8,15 +8,16 @@ let oGameData = {};
 
 window.addEventListener("load", () => {
     initGlobalObject();
-    if (checkForGameOver() === 1) {
-        console.log("Spelare 1 vann dvs X");
-    } else if (checkForGameOver() === 2) {
-        console.log("Spelare 2 vann dvs O");
-    } else if (checkForGameOver() === 3) {
-        console.log("Oavgjort");
-    } else {
-        console.log("Spelet fortsätter");
-    }
+    prepGame();
+    // if (checkForGameOver() === 1) {
+    //     console.log("Spelare 1 vann dvs X");
+    // } else if (checkForGameOver() === 2) {
+    //     console.log("Spelare 2 vann dvs O");
+    // } else if (checkForGameOver() === 3) {
+    //     console.log("Oavgjort");
+    // } else {
+    //     console.log("Spelet fortsätter");
+    // }
 });
 
 /**
@@ -158,16 +159,118 @@ function checkForDraw() {
 
 // Nedanstående funktioner väntar vi med!
 
-function prepGame() {}
+function prepGame() {
+    // Göm Spelplanen
+    document.querySelector("#gameArea").classList.add("d-none");
+
+    // Om starta spelet-knappen klickas -> kör initiateGame()
+    document.querySelector('#newGame').addEventListener('click', (initiateGame));
+}
 
 function validateForm() {}
 
-function initiateGame() {}
+function initiateGame() {
+    console.log("initiateGame()");
 
-function executeMove(event) {}
+    // Gömmer input-formulär.
+    let formRef = document.querySelector("#theForm");
+    formRef.classList.add("d-none");
 
+    // Visar spelplanen.
+    document.querySelector("#gameArea").classList.remove("d-none");
+
+    //Gömmer felmeddelandet.
+    document.querySelector("#errorMsg").textContent= "";
+
+    //Hämtar namn från användare 1.
+    oGameData.nickNamePlayerOne = document.querySelector("#nick1").value;
+    console.log(oGameData.nickNamePlayerOne)
+
+    //Hämtar namn från användare 2.
+    oGameData.nickNamePlayerTwo = document.querySelector("#nick2").value;
+    console.log(oGameData.nickNamePlayerTwo)
+
+    //Hämtar färg från användare 1.
+    oGameData.colorPlayerOne = document.querySelector("#color1").value;
+    console.log(oGameData.colorPlayerOne)
+
+    //Hämtar färg från användare 2.
+    oGameData.colorPlayerTwo = document.querySelector("#color2").value;
+    console.log(oGameData.colorPlayerTwo)
+
+    //Hämtar alla td-element som är spelrutor. 
+    let gameTdRefs = document.querySelectorAll(".ml-auto tr td")
+    console.log(gameTdRefs)
+    
+    //Rensar spelplanen.
+    gameTdRefs.forEach(field => {
+        field.textContent = "";
+        field.style.backgroundColor = "#ffffff";
+    });
+
+    //Slumpar fram en startspelare.
+    let playerChar;
+    let playerName;
+
+    let randomNumber = Math.random()
+    console.log(randomNumber)
+
+    if (randomNumber < 0.5) {
+        playerChar = oGameData.playerOne;
+        playerName = oGameData.nickNamePlayerOne;
+        oGameData.currentPlayer = oGameData.playerOne;
+    } else {
+        playerChar = oGameData.playerTwo;
+        playerName = oGameData.nickNamePlayerTwo;
+        oGameData.currentPlayer = oGameData.playerTwo;
+    }
+
+    document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ${playerName}`;
+
+    document.querySelector('#gameArea table').addEventListener('click', (executeMove))
+
+}
+
+function executeMove(event) {
+
+    
+    //Kontrollerar att klickad cell är tom.
+    if (event.target.textContent === "") {
+       oGameData.gameField[event.target.getAttribute("data-id")] = oGameData.currentPlayer
+
+    //Lorem ipsum
+        if (oGameData.currentPlayer === oGameData.playerOne) {
+            event.target.style.backgroundColor = oGameData.colorPlayerOne;
+            event.target.textContent = oGameData.playerOne;
+            oGameData.currentPlayer = oGameData.playerTwo;
+            document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ` + oGameData.nickNamePlayerTwo;
+        } else {
+            event.target.style.backgroundColor = oGameData.colorPlayerTwo;
+            event.target.textContent = oGameData.playerTwo;
+            oGameData.currentPlayer = oGameData.playerOne;
+            document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ` + oGameData.nickNamePlayerOne;
+        }
+
+        if (checkForGameOver() === 1) {
+            gameOver(1)
+        } else if (checkForGameOver() === 2){
+            gameOver(2)
+        } else if (checkForGameOver() === 3){
+            gameOver(3)
+        }
+    console.log(oGameData.currentPlayer)
+    }
+}
 function changePlayer() {}
 
 function timer() {}
 
-function gameOver(result) {}
+function gameOver(result) {
+     if (result === 1) {
+            console.log("spelare 1 vinner")
+        } else if (result === 2){
+            console.log("spelare 2 vinner")
+        } else if (result === 3){
+            console.log("oavgjort")
+        }
+}
