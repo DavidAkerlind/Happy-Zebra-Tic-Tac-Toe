@@ -1,33 +1,11 @@
-"use strict";
-
-/**
- * Globalt objekt som innehåller de attribut som ni skall använda.
- * Initieras genom anrop till funktionern initGlobalObject().
- */
 let oGameData = {};
 
-window.addEventListener("load", () => {
-    initGlobalObject();
-    prepGame();
-    // if (checkForGameOver() === 1) {
-    //     console.log("Spelare 1 vann dvs X");
-    // } else if (checkForGameOver() === 2) {
-    //     console.log("Spelare 2 vann dvs O");
-    // } else if (checkForGameOver() === 3) {
-    //     console.log("Oavgjort");
-    // } else {
-    //     console.log("Spelet fortsätter");
-    // }
-});
+initGlobalObject();
+prepGame();
 
-/**
- * Initerar det globala objektet med de attribut som ni skall använda er av.
- * Funktionen tar inte emot några värden.
- * Funktionen returnerar inte något värde.
- */
 function initGlobalObject() {
     //Datastruktur för vilka platser som är lediga respektive har brickor
-    //Genom at fylla i här med antingen X eler O kan ni testa era rättningsfunktioner
+    //Genom att fylla i här med antingen X eler O kan ni testa era rättningsfunktioner
     oGameData.gameField = ["", "", "", "", "", "", "", "", ""];
     /* Testdata för att testa rättningslösning */
     //oGameData.gameField = ["O", "O", "O", "", "", "", "", "", ""];
@@ -67,13 +45,15 @@ function initGlobalObject() {
     oGameData.colorPlayerTwo = "";
 
     //Antalet sekunder för timerfunktionen
-    oGameData.seconds = 5;
+    oGameData.seconds = 6;
 
     //Timerns ID
     oGameData.timerId = null;
 
     //Från start är timern inaktiverad
     oGameData.timerEnabled = false;
+
+    oGameData.timerShow = null;
 
     //Referens till element för felmeddelanden
     oGameData.timeRef = document.querySelector("#errorMsg");
@@ -164,10 +144,64 @@ function prepGame() {
     document.querySelector("#gameArea").classList.add("d-none");
 
     // Om starta spelet-knappen klickas -> kör initiateGame()
-    document.querySelector('#newGame').addEventListener('click', (initiateGame));
+    document.querySelector("#newGame").addEventListener("click", () => {
+        if (validateForm()) {
+            initiateGame();
+        }
+    });
 }
 
-function validateForm() {}
+function validateForm() {
+    console.log("validateForm");
+
+    const nickNameP1 = document.querySelector("#nick1");
+    const nickNameP2 = document.querySelector("#nick2");
+    const colorP1 = document.querySelector("#color1");
+    const colorP2 = document.querySelector("#color2");
+
+    try {
+        if (nickNameP1.value.length > 10 || nickNameP1.value.length < 3) {
+            throw {
+                message:
+                    "Fel längd på anändarnamn för spelare 1. (Användarnamnet måste vara mellan 3 och 10 tecken långt.)",
+                nodeRef: nickNameP1,
+            };
+        }
+        if (nickNameP2.value.length > 10 || nickNameP2.value.length < 3) {
+            throw {
+                message:
+                    "Fel längd på anändarnamn för spelare 2. (Användarnamnet måste vara mellan 3 och 10 tecken långt.)",
+                nodeRef: nickNameP2,
+            };
+        }
+        if (nickNameP1.value === nickNameP2.value) {
+            throw {
+                message:
+                    "Nickname på spelare 1 får inte vara samma som spelare 2",
+                nodeRef: nickNameP1,
+            };
+        }
+        if (colorP1.value === "#ffffff" || colorP1.value === "#000000") {
+            throw {
+                message: "Färgen på spelare 1 får inte vara svart eller vit.",
+                nodeRef: colorP1,
+            };
+        }
+        if (colorP2.value === "#ffffff" || colorP2.value === "#000000") {
+            throw {
+                message: "Färgen på spelare 2 får inte vara svart eller vit.",
+                nodeRef: colorP2,
+            };
+        }
+
+        return true;
+    } catch (error) {
+        error.nodeRef.focus();
+        document.querySelector("#errorMsg").textContent = error.message;
+
+        return false;
+    }
+}
 
 function initiateGame() {
     console.log("initiateGame()");
@@ -178,31 +212,27 @@ function initiateGame() {
     // Visar spelplanen.
     document.querySelector("#gameArea").classList.remove("d-none");
 
-    //Gömmer felmeddelandet.
-    document.querySelector("#errorMsg").textContent= "";
-
     //Hämtar namn från användare 1.
     oGameData.nickNamePlayerOne = document.querySelector("#nick1").value;
-    console.log(oGameData.nickNamePlayerOne)
+    console.log(oGameData.nickNamePlayerOne);
 
     //Hämtar namn från användare 2.
     oGameData.nickNamePlayerTwo = document.querySelector("#nick2").value;
-    console.log(oGameData.nickNamePlayerTwo)
+    console.log(oGameData.nickNamePlayerTwo);
 
     //Hämtar färg från användare 1.
     oGameData.colorPlayerOne = document.querySelector("#color1").value;
-    console.log(oGameData.colorPlayerOne)
+    console.log(oGameData.colorPlayerOne);
 
     //Hämtar färg från användare 2.
     oGameData.colorPlayerTwo = document.querySelector("#color2").value;
-    console.log(oGameData.colorPlayerTwo)
+    console.log(oGameData.colorPlayerTwo);
 
-    //Hämtar alla td-element som är spelrutor. 
-    let gameTdRefs = document.querySelectorAll(".ml-auto tr td")
-    
-    
+    //Hämtar alla td-element som är spelrutor.
+    let gameTdRefs = document.querySelectorAll(".ml-auto tr td");
+
     //Rensar spelplanen.
-    gameTdRefs.forEach(field => {
+    gameTdRefs.forEach((field) => {
         field.textContent = "";
         field.style.backgroundColor = "#ffffff";
     });
@@ -211,8 +241,8 @@ function initiateGame() {
     let playerChar;
     let playerName;
 
-    let randomNumber = Math.random()
-    
+    let randomNumber = Math.random();
+
     if (randomNumber < 0.5) {
         playerChar = oGameData.playerOne;
         playerName = oGameData.nickNamePlayerOne;
@@ -223,72 +253,122 @@ function initiateGame() {
         oGameData.currentPlayer = oGameData.playerTwo;
     }
 
-    document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ${playerName}`;
+    document.querySelector(
+        ".jumbotron h1"
+    ).textContent = `Aktuell spelare är ${playerName}`;
 
-    document.querySelector('#gameArea table').addEventListener('click', (executeMove))
-
+    document
+        .querySelector("#gameArea table")
+        .addEventListener("click", executeMove);
 }
 
 function executeMove(event) {
-
-    
     //Kontrollerar att klickad cell är tom.
     if (event.target.textContent === "") {
-       oGameData.gameField[event.target.getAttribute("data-id")] = oGameData.currentPlayer
+        oGameData.gameField[event.target.getAttribute("data-id")] =
+            oGameData.currentPlayer;
 
-    // Kollar vem som är aktuell spelare och lägger in den färg och tecken på den ruta som klickades
+        // Kollar vem som är aktuell spelare och lägger in den färg och tecken på den ruta som klickades
         if (oGameData.currentPlayer === oGameData.playerOne) {
             event.target.style.backgroundColor = oGameData.colorPlayerOne;
             event.target.textContent = oGameData.playerOne;
             oGameData.currentPlayer = oGameData.playerTwo;
-            document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ` + oGameData.nickNamePlayerTwo;
+            document.querySelector(".jumbotron h1").textContent =
+                `Aktuell spelare är ` + oGameData.nickNamePlayerTwo;
         } else {
             event.target.style.backgroundColor = oGameData.colorPlayerTwo;
             event.target.textContent = oGameData.playerTwo;
             oGameData.currentPlayer = oGameData.playerOne;
-            document.querySelector('.jumbotron h1').textContent = `Aktuell spelare är ` + oGameData.nickNamePlayerOne;
+            document.querySelector(".jumbotron h1").textContent =
+                `Aktuell spelare är ` + oGameData.nickNamePlayerOne;
         }
 
-// Om checkForGameOver inte är 0 så är spelet över och vi kör gameOver()
+        //Om checkForGameOver inte är 0 så är spelet över och vi kör gameOver()
         if (checkForGameOver() !== 0) {
-            gameOver(checkForGameOver())
+            gameOver(checkForGameOver());
+        } else {
+            timer();
         }
-
-
-        // Alternativ 2 
-        // if (checkForGameOver() === 1) {
-        //     gameOver(1)
-        // } else if (checkForGameOver() === 2){
-        //     gameOver(2)
-        // } else if (checkForGameOver() === 3){
-        //     gameOver(3)
-        // }
-    
     }
 }
-function changePlayer() {}
+function changePlayer(player) {
+    clearTimeout(oGameData.timerId);
+    console.log("changePlayer()");
+    oGameData.currentPlayer = player;
+}
 
-function timer() {}
+function timer() {
+    console.log("timer()");
+
+    let timeLeft = 5; // Startvärde för nedräkning
+
+    clearInterval(oGameData.timerShow);
+    oGameData.timerShow = null;
+    // Starta nedräkningen
+    oGameData.timerShow = setInterval(() => {
+        oGameData.timeRef.textContent = `Skynda! du har bara: ${timeLeft} sekunder kvar`;
+        console.log(timeLeft); // Visa aktuellt värde
+        timeLeft--; // Minska tiden med 1
+
+        // Kontrollera om tiden nått 0
+        if (timeLeft === -1) {
+            clearInterval(oGameData.timerShow); // Stoppa timern
+        }
+    }, 1000);
+
+    //Rensar tidigare timer
+    clearTimeout(oGameData.timerId);
+    oGameData.timerId = null;
+
+    oGameData.timerId = setTimeout(() => {
+        console.log(
+            `${oGameData.currentPlayer}s tur är slut! byter spelare...`
+        );
+        if (oGameData.currentPlayer === oGameData.playerOne) {
+            changePlayer(oGameData.playerTwo);
+            document.querySelector(
+                ".jumbotron h1"
+            ).textContent = `${oGameData.nickNamePlayerTwo}s tur nu`;
+        } else {
+            changePlayer(oGameData.playerOne);
+            document.querySelector(
+                ".jumbotron h1"
+            ).textContent = `${oGameData.nickNamePlayerOne}s tur nu`;
+        }
+        timer();
+    }, oGameData.seconds * 1000);
+}
 
 function gameOver(result) {
-// Tar bort addEventListener på rutbrädet
-document.querySelector('#gameArea table').removeEventListener('click', (executeMove))
+    clearInterval(oGameData.timerShow);
+    clearTimeout(oGameData.timerId);
 
-// Tar fram formuläret för att välja namn och färg samt starta spelet
-document.querySelector("#theForm").classList.remove("d-none");
+    oGameData.timeRef.textContent = "";
 
-// Gömmer Spelplanen
-document.querySelector("#gameArea").classList.add("d-none");
+    // Visar vem som vann spelet i jumbotronen
+    if (result === 1) {
+        document.querySelector(
+            ".jumbotron h1"
+        ).textContent = `${oGameData.nickNamePlayerOne} vinner! Spela igen?`;
+    } else if (result === 2) {
+        document.querySelector(
+            ".jumbotron h1"
+        ).textContent = `${oGameData.nickNamePlayerTwo} vinner! Spela igen?`;
+    } else if (result === 3) {
+        document.querySelector(".jumbotron h1").textContent = `Oavgjort!`;
+    }
 
-// Visar vem som vann spelet i jumbotronen
-     if (result === 1) {
-            document.querySelector('.jumbotron h1').textContent = `${oGameData.nickNamePlayerOne} vinner! Spela igen?`;
-        } else if (result === 2){
-            document.querySelector('.jumbotron h1').textContent = `${oGameData.nickNamePlayerTwo} vinner! Spela igen?`;
-        } else if (result === 3){
-            document.querySelector('.jumbotron h1').textContent = `Oavgjort!`;
-        }
+    // Tar bort addEventListener på rutbrädet
+    document
+        .querySelector("#gameArea table")
+        .removeEventListener("click", executeMove);
 
-// Återställer vårat globala objekt för att köra ett nytt spel
+    // Gömmer Spelplanen och tar fram formuläret för att välja namn och färg samt starta spelet, med delay 3 sekunder.
+    setTimeout(() => {
+        document.querySelector("#gameArea").classList.add("d-none");
+        document.querySelector("#theForm").classList.remove("d-none");
+    }, 3000);
+
+    // Återställer vårat globala objekt för att köra ett nytt spel
     initGlobalObject();
 }
